@@ -2011,6 +2011,32 @@ main{padding:16px}
   flex-shrink: 0;
 }
 
+/* Compact chips used inside the status dropdown button */
+.status-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: var(--surface-dim);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text);
+}
+
+[data-theme="dark"] .status-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 .status-dropdown-content {
   position: absolute;
   top: 100%;
