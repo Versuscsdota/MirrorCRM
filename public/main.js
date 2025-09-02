@@ -1594,14 +1594,12 @@ async function renderModelCard(id) {
   const isAdmin = (me.role === 'root' || me.role === 'admin');
   const model = await api('/api/models?id=' + encodeURIComponent(id));
   let files = [];
-  if (isAdmin) {
-    try {
-      const filesRes = await api('/api/files?modelId=' + encodeURIComponent(id));
-      files = filesRes.items || [];
-    } catch (e) {
-      // Ignore files errors for robust rendering
-      files = [];
-    }
+  try {
+    const filesRes = await api('/api/files?modelId=' + encodeURIComponent(id));
+    files = filesRes.items || [];
+  } catch (e) {
+    // Ignore files errors for robust rendering (interviewer/admin/root can view)
+    files = [];
   }
   const mainFile = (files || []).find(f => f.id === model.mainPhotoId && (f.contentType||'').startsWith('image/'));
   const displayName = model.fullName || model.name || 'Модель';
