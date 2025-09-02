@@ -1385,8 +1385,7 @@ main{padding:16px}
 }
 
 .model-list {
-  flex-direction: column;
-  gap: 8px;
+  gap: 8px; /* keep spacing */
 }
 
 .schedule-header {
@@ -1434,6 +1433,8 @@ main{padding:16px}
 }
 
 @media (max-width: 768px) {
+  /* On mobile stack model cards vertically */
+  .model-list { flex-direction: column; }
   .schedule-header {
     display: flex;            /* override desktop grid on mobile */
     flex-direction: column;
