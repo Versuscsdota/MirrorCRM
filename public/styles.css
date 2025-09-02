@@ -1390,15 +1390,14 @@ main{padding:16px}
 }
 
 .schedule-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* title | time/date | actions */
+  column-gap: 16px;
   align-items: center;
   padding: 12px 0;
 }
 
-.current-datetime {
-  text-align: right;
-}
+.current-datetime { text-align: right; justify-self: end; }
 
 .current-time {
   font-size: 32px;
@@ -1408,11 +1407,7 @@ main{padding:16px}
   margin-bottom: 4px;
 }
 
-.schedule-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.schedule-header-actions { display: flex; align-items: center; gap: 8px; justify-self: end; }
 
 .schedule-header-actions .icon-btn {
   display: inline-flex;
@@ -1430,8 +1425,17 @@ main{padding:16px}
   background: var(--surface-hover);
 }
 
+/* Desktop refinements */
+@media (min-width: 1025px) {
+  .schedule-header { padding: 8px 0 12px; border-bottom: 1px solid var(--border); }
+  .current-datetime { white-space: nowrap; }
+  .current-time { font-size: 24px; }
+  .current-date { font-size: 12px; color: var(--muted); }
+}
+
 @media (max-width: 768px) {
   .schedule-header {
+    display: flex;            /* override desktop grid on mobile */
     flex-direction: column;
     align-items: stretch;
     padding: 16px;
