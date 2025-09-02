@@ -113,15 +113,10 @@ async function renderCalendar() {
   view.innerHTML = `
     <div class="schedule-container">
       <div class="schedule-header">
-        <h1 class="schedule-header-title">Календарь</h1>
+        <h1>Календарь</h1>
         <div class="current-datetime" id="currentDateTimeDisplay">
           <div class="current-time" id="currentTime"></div>
           <div class="current-date" id="currentDate"></div>
-        </div>
-        <div class="schedule-header-actions">
-          <button class="icon-btn" id="hdrTodayBtn" title="Сегодня" aria-label="Сегодня"><span class="material-symbols-rounded">today</span></button>
-          <button class="icon-btn" id="hdrRefreshBtn" title="Обновить" aria-label="Обновить"><span class="material-symbols-rounded">refresh</span></button>
-          ${(window.currentUser && ['root','admin'].includes(window.currentUser.role)) ? '<button class="icon-btn" id="hdrAddBtn" title="Создать слот" aria-label="Создать слот"><span class="material-symbols-rounded">add</span></button>' : ''}
         </div>
       </div>
       
@@ -209,28 +204,6 @@ async function renderCalendar() {
   }
   setTimeout(updateHeaderCurrentDateTime, 100);
   setInterval(updateHeaderCurrentDateTime, 60000);
-
-  // Header action buttons (mobile/desktop)
-  const hdrTodayBtn = el('#hdrTodayBtn');
-  if (hdrTodayBtn) hdrTodayBtn.onclick = () => {
-    try {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      date = `${yyyy}-${mm}-${dd}`;
-      const newMonth = `${yyyy}-${mm}`;
-      const needsMonthReload = (currentMonth !== newMonth);
-      currentMonth = newMonth;
-      if (needsMonthReload) loadMonth();
-      load();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (e) { console.warn('hdrTodayBtn failed', e); }
-  };
-  const hdrRefreshBtn = el('#hdrRefreshBtn');
-  if (hdrRefreshBtn) hdrRefreshBtn.onclick = () => { try { loadMonth(); load(); } catch (e) { console.warn('hdrRefreshBtn failed', e); } };
-  const hdrAddBtn = el('#hdrAddBtn');
-  if (hdrAddBtn) hdrAddBtn.onclick = () => { try { if (typeof createSlot === 'function') createSlot(); } catch (e) { console.warn('hdrAddBtn failed', e); } };
   // After rendering, set initial selected date label like on day click
   const selectedDateElInit = el('#selectedDate');
   if (selectedDateElInit) {
