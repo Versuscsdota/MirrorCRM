@@ -1393,9 +1393,7 @@ main{padding:16px}
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
 }
 
 .current-datetime {
@@ -1420,12 +1418,12 @@ main{padding:16px}
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-light);
-  color: var(--text);
+  border: none;
+  background: transparent;
+  color: var(--muted);
 }
 
 .schedule-header-actions .icon-btn:hover {
@@ -1902,14 +1900,14 @@ main{padding:16px}
     z-index: 1000;
     margin: -16px -16px 16px; /* expand to full width inside container */
     padding: 10px 12px;
-    background: color-mix(in srgb, var(--panel) 85%, transparent);
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
   }
   .schedule-header-title { font-size: 18px; }
   .current-time { font-size: 18px; }
   .current-date { font-size: 11px; }
-  .schedule-header-actions .icon-btn { width: 40px; height: 40px; border-radius: 10px; }
+  .schedule-header-actions .icon-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-light); color: var(--text); }
 }
 
 @media (max-width: 480px) {
