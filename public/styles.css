@@ -2010,6 +2010,13 @@ main{padding:16px}
   background: var(--panel-light);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  color: var(--text); /* ensure inline SVG uses visible color */
+}
+.status-button.icon-only svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor; /* force icon to inherit color */
 }
 
 .status-button.icon-only .material-symbols-rounded {
@@ -2022,6 +2029,7 @@ main{padding:16px}
 .status-button.icon-only:hover {
   background: var(--panel);
   border-color: var(--accent-weak);
+  color: var(--accent);
 }
 
 .status-button.icon-only:hover .material-symbols-rounded {
@@ -2087,16 +2095,32 @@ main{padding:16px}
   border-radius: 50%;
   background: transparent;
   border: none;
-  color: var(--muted);
+  color: var(--text); /* stronger default for light theme */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
 }
+.icon-button svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor; /* force icon to inherit color */
+}
 
 .icon-button:hover {
   background: var(--panel-light);
+  color: var(--accent);
+}
+
+/* Ensure strong contrast in light theme */
+[data-theme="light"] .status-button.icon-only,
+[data-theme="light"] .icon-button {
+  color: var(--text);
+}
+[data-theme="light"] .status-button.icon-only:hover,
+[data-theme="light"] .icon-button:hover {
   color: var(--accent);
 }
 
