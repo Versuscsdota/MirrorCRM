@@ -1684,23 +1684,23 @@ async function renderModelCard(id) {
               <div class="form-grid">
                 <div class="form-field">
                   <label class="field-label">Telegram/Nickname</label>
-                  <input type="text" class="field-input" value="@${telegram}" id="telegramInput" />
+                  <input type="text" class="field-input" value="@${telegram}" id="telegramInput" readonly aria-readonly="true" />
                 </div>
                 <div class="form-field">
                   <label class="field-label">ФИО</label>
-                  <input type="text" class="field-input" value="${displayName}" id="fullNameInput" />
+                  <input type="text" class="field-input" value="${displayName}" id="fullNameInput" readonly aria-readonly="true" />
                 </div>
                 <div class="form-field">
                   <label class="field-label">Телефон</label>
-                  <input type="text" class="field-input" value="${phone}" id="phoneInput" />
+                  <input type="text" class="field-input" value="${phone}" id="phoneInput" readonly aria-readonly="true" />
                 </div>
                 <div class="form-field">
                   <label class="field-label">Дата рождения</label>
-                  <input type="date" class="field-input" value="${model.registration?.birthDate ? new Date(model.registration.birthDate).toISOString().split('T')[0] : ''}" id="birthDateInput" />
+                  <input type="date" class="field-input" value="${model.registration?.birthDate ? new Date(model.registration.birthDate).toISOString().split('T')[0] : ''}" id="birthDateInput" readonly aria-readonly="true" />
                 </div>
                 <div class="form-field">
                   <label class="field-label">Дата первой стажировки</label>
-                  <input type="date" class="field-input" value="${model.registration?.internshipDate ? new Date(model.registration.internshipDate).toISOString().split('T')[0] : ''}" id="internshipDateInput" />
+                  <input type="date" class="field-input" value="${model.registration?.internshipDate ? new Date(model.registration.internshipDate).toISOString().split('T')[0] : ''}" id="internshipDateInput" readonly aria-readonly="true" />
                 </div>
               </div>
             </div>
@@ -1710,7 +1710,7 @@ async function renderModelCard(id) {
               <div class="form-grid">
                 <div class="form-field">
                   <label class="field-label">Тип документа</label>
-                  <select class="field-input" id="docTypeInput">
+                  <select class="field-input" id="docTypeInput" disabled aria-disabled="true">
                     <option value="passport" ${model.registration?.docType === 'passport' ? 'selected' : ''}>Паспорт РФ</option>
                     <option value="license" ${model.registration?.docType === 'license' ? 'selected' : ''}>Водительское удостоверение</option>
                     <option value="international" ${model.registration?.docType === 'international' ? 'selected' : ''}>Загранпаспорт</option>
@@ -1718,7 +1718,7 @@ async function renderModelCard(id) {
                 </div>
                 <div class="form-field">
                   <label class="field-label">Серия и номер / номер</label>
-                  <input type="text" class="field-input" value="${model.registration?.docNumber || ''}" id="docNumberInput" />
+                  <input type="text" class="field-input" value="${model.registration?.docNumber || ''}" id="docNumberInput" readonly aria-readonly="true" />
                 </div>
               </div>
             </div>
