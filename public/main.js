@@ -1613,6 +1613,18 @@ async function renderModelCard(id) {
     'thinking': { label: 'ушла на подумать', color: 'var(--status-gray)' }
   };
   
+  // Build inline chips for header subtitle (instead of @telegram)
+  const headerStatusChips = `
+    <span class="status-chips">
+      ${activeStatuses.map(k => `
+        <span class=\"status-chip\"> 
+          <span class=\"status-indicator\" style=\"background-color: ${statusMap[k]?.color || 'var(--status-gray)'}\"></span>
+          ${statusMap[k]?.label || k}
+        </span>
+      `).join('')}
+    </span>
+  `;
+
   view.innerHTML = `
     <div class="model-profile-new">
       <header class="profile-header">
