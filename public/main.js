@@ -1834,6 +1834,25 @@ async function renderModelCard(id) {
     
     statusHistoryEl.innerHTML = historyItems || '<div class="status-history-empty">История статусов пуста</div>';
   }
+  // Admin-only: hook delete button inside renderModelCard
+  if (isAdmin) {
+    const delBtn = el('#deleteModelBtn');
+    if (delBtn) {
+      delBtn.onclick = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const ok = confirm('Удалить модель? Действие необратимо.');
+        if (!ok) return;
+        try {
+          await api(`/api/models?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+          renderModels();
+        } catch (e) {
+          console.error('Delete model failed', e);
+          alert('Не удалось удалить модель');
+        }
+      };
+    }
+  }
   // After render, populate accounts textarea explicitly
   try {
     const ta = el('#webcamAccounts');
