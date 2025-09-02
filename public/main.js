@@ -1759,6 +1759,75 @@ async function renderModelCard(id) {
         </div>
       </main>
     </div>`;
+  
+  // Populate status history with user info
+  const statusHistoryEl = el('#statusHistory');
+  if (statusHistoryEl && model.history) {
+    // Get employees to map user IDs to names
+    let employees = [];
+    try {
+      const empData = await api('/api/employees');
+      employees = empData.items || [];
+    } catch (e) {
+      console.warn('Failed to load employees for history:', e);
+    }
+    
+    const getUserName = (userId) => {
+      if (!userId) return 'Система';
+      const emp = employees.find(e => e.userId === userId);
+      return emp ? emp.fullName : `Пользователь ${userId}`;
+    };
+    
+    const historyItems = model.history
+      .filter(h => h.action === 'status_change' || h.type === 'status_sync_from_slot' || h.type === 'registration')
+      .sort((a, b) => (b.ts || 0) - (a.ts || 0)) // newest first
+      .map(h => {
+        const date = new Date(h.ts || Date.now());
+        const timeStr = date.toLocaleDateString('ru-RU', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const userName = getUserName(h.userId);
+        let actionText = '';
+        let statusChips = '';
+        
+        if (h.type === 'registration') {
+          actionText = `Регистрация модели — ${userName}`;
+          statusChips = `<span class="history-status-chip" style="background: var(--status-green-dark)">регистрация</span>`;
+        } else if (h.changes) {
+          const changes = Object.entries(h.changes).map(([key, change]) => {
+            const fromLabel = statusMap[change.from]?.label || change.from || '—';
+            const toLabel = statusMap[change.to]?.label || change.to || '—';
+            return `${fromLabel} → ${toLabel}`;
+          }).join(', ');
+          actionText = `${changes} — ${userName}`;
+          
+          // Show current statuses as chips
+          const currentStatuses = [h.status1, h.status2, h.status3, h.status4].filter(Boolean);
+          statusChips = currentStatuses.map(s => 
+            `<span class="history-status-chip" style="background: ${statusMap[s]?.color || 'var(--status-gray)'}">${statusMap[s]?.label || s}</span>`
+          ).join('');
+        } else {
+          actionText = `${h.type === 'status_sync_from_slot' ? 'Синхронизация со слотом' : 'Изменение статуса'} — ${userName}`;
+        }
+        
+        return `
+          <div class="status-history-item">
+            <div class="status-history-left">
+              <div class="status-history-text">${actionText}</div>
+              <div class="status-history-chips">${statusChips}</div>
+            </div>
+            <div class="status-history-time">${timeStr}</div>
+          </div>
+        `;
+      }).join('');
+    
+    statusHistoryEl.innerHTML = historyItems || '<div class="status-history-empty">История статусов пуста</div>';
+  }
   // After render, populate accounts textarea explicitly
   try {
     const ta = el('#webcamAccounts');
