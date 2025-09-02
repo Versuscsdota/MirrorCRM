@@ -321,11 +321,16 @@ async function renderCalendar() {
     
     // Render slot events
     const renderSlotEvents = (slotsAtTime) => {
-      if (!slotsAtTime || slotsAtTime.length === 0) {
-        return '<div class="schedule-event schedule-event-empty">Свободно</div>';
+      const real = Array.isArray(slotsAtTime) ? slotsAtTime : [];
+      const parts = [];
+      if (real.length === 0) {
+        // show two placeholders (capacity is 2 per time)
+        parts.push('<div class="schedule-event schedule-event-empty">Свободно</div>');
+        parts.push('<div class="schedule-event schedule-event-empty">Свободно</div>');
+        return parts.join('');
       }
-      
-      return slotsAtTime.map(slot => {
+
+      parts.push(...real.map(slot => {
         const statusClass = getStatusClass(slot);
         const phone = slot.phone || slot.contacts?.phone || '';
         return `
@@ -334,7 +339,14 @@ async function renderCalendar() {
             ${phone ? `<span class="schedule-phone-number">${phone}</span>` : ''}
           </div>
         `;
-      }).join('');
+      }));
+
+      // If we have less than 2 real slots at this time, show placeholders for remaining capacity
+      const capacity = 2;
+      for (let i = real.length; i < capacity; i++) {
+        parts.push('<div class="schedule-event schedule-event-empty">Свободно</div>');
+      }
+      return parts.join('');
     };
     
     table.innerHTML = timeSlots.map(time => {
