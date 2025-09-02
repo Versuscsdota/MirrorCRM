@@ -988,13 +988,22 @@ async function renderCalendar() {
       if (s.status3) active.push(s.status3);
       if (s.status4 === 'registration') active.push('registration');
       // Build content
+      const colors = {
+        'not_confirmed': 'var(--status-green-light)',
+        'confirmed': 'var(--status-yellow)',
+        'fail': 'var(--status-red)',
+        'registration': 'var(--status-green-dark)',
+        'reject_candidate': 'var(--status-green-dark)',
+        'reject_us': 'var(--status-black)',
+        'thinking': 'var(--status-gray)'
+      };
       dd.innerHTML = Object.entries(statusMap).map(([key, value]) => {
         const checked = active.includes(key) ? 'checked' : '';
         return `
           <label class="status-option" data-status="${key}">
+            <span class="status-indicator" style="background-color: ${colors[key] || 'var(--status-gray)'}"></span>
+            <span class="status-label">${value.label}</span>
             <input type="checkbox" class="status-checkbox" data-status="${key}" ${checked} />
-            <span class="status-indicator"></span>
-            ${value.label}
           </label>`;
       }).join('');
       const renderChips = (src) => {
@@ -1808,9 +1817,9 @@ async function renderModelCard(id) {
                 const checked = activeStatuses.includes(key) ? 'checked' : '';
                 return `
                   <label class="status-option" data-status="${key}">
-                    <input type="checkbox" class="status-checkbox" data-status="${key}" ${checked} />
-                    <span class="status-indicator" style="background-color: ${value.color}"></span>
-                    ${key === 'reject_candidate' ? '<span class="line-through">' + value.label + '</span>' : value.label}
+                    <span class=\"status-indicator\" style=\"background-color: ${value.color}\"></span>
+                    <span class=\"status-label\">${key === 'reject_candidate' ? '<span class=\\"line-through\\">' + value.label + '</span>' : value.label}</span>
+                    <input type=\"checkbox\" class=\"status-checkbox\" data-status=\"${key}\" ${checked} />
                   </label>`;
               }).join('')}
             </div>

@@ -2052,7 +2052,10 @@ main{padding:16px}
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  min-width: 220px;
+  min-width: 260px;
+  padding: 6px;
+  max-height: 420px;
+  overflow: auto;
   z-index: 1000;
   display: none;
 }
@@ -2062,13 +2065,16 @@ main{padding:16px}
 }
 
 .status-option {
-  display: flex;
+  display: grid;
+  grid-template-columns: 16px 1fr 16px;
+  column-gap: 10px;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  padding: 8px 10px;
   color: var(--text);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.3;
+  border-radius: 8px;
   transition: background-color 0.2s ease;
 }
 
@@ -2095,6 +2101,9 @@ main{padding:16px}
   background: var(--panel-light);
   display: inline-block;
   position: relative;
+  grid-column: 3;
+  justify-self: end;
+  margin: 0;
 }
 .status-option input[type="checkbox"]:hover{
   border-color: var(--accent);
@@ -2113,6 +2122,25 @@ main{padding:16px}
   border: solid var(--bg);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+/* Ensure the colored dot stays on the left column */
+.status-option .status-indicator {
+  grid-column: 1;
+  display: block;
+}
+
+/* Middle column label */
+.status-option .status-label {
+  grid-column: 2;
+  align-self: center;
+  white-space: normal;
+}
+
+/* Keyboard focus accessibility */
+.status-option:focus-within {
+  outline: 2px solid var(--accent-weak);
+  outline-offset: 2px;
 }
 
 /* Chips row for selected statuses in slot modal */
