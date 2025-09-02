@@ -2059,9 +2059,7 @@ async function renderModelCard(id) {
         </label>
       </div>
       <label>Серия и номер / Номер<input id="mDocNumber" value="${reg.docNumber || ''}" /></label>
-      <label>Комментарий<textarea id="mComment" rows="3">${reg.comment || ''}</textarea></label>
-      <label>Теги<input id="mTags" value="${(model.tags || []).join(', ')}" placeholder="фотомодель, реклама, fashion" /></label>
-      <label>Примечания<textarea id="mNote" rows="3">${model.note || ''}</textarea></label>
+      
     `;
     const res = await showModal({ title: 'Редактировать профиль', content: form, submitText: 'Сохранить' });
     if (!res) return;
@@ -2069,32 +2067,28 @@ async function renderModelCard(id) {
     const name = form.querySelector('#mName').value.trim();
     const fullName = form.querySelector('#mFullName').value.trim();
     const phone = form.querySelector('#mPhone').value.trim();
-    const tags = form.querySelector('#mTags').value.split(',').map(t => t.trim()).filter(Boolean);
-    const note = form.querySelector('#mNote').value.trim();
     
     // Registration fields (if present)
     const birthDate = form.querySelector('#mBirthDate') ? form.querySelector('#mBirthDate').value : undefined;
     const docType = form.querySelector('#mDocType') ? form.querySelector('#mDocType').value : undefined;
     const docNumber = form.querySelector('#mDocNumber') ? form.querySelector('#mDocNumber').value.trim() : undefined;
     const internshipDate = form.querySelector('#mInternshipDate') ? form.querySelector('#mInternshipDate').value : undefined;
-    const comment = form.querySelector('#mComment') ? form.querySelector('#mComment').value.trim() : undefined;
     
     if (!name) { setError('Укажите псевдоним модели'); return; }
     try {
       const payload = { 
         id, name, fullName, 
-        contacts: { phone }, tags, note
+        contacts: { phone }
       };
       
       // Add registration fields if they exist
-      if (birthDate !== undefined || docType !== undefined || docNumber !== undefined || internshipDate !== undefined || comment !== undefined) {
+      if (birthDate !== undefined || docType !== undefined || docNumber !== undefined || internshipDate !== undefined) {
         payload.registration = {
           ...reg,
           ...(birthDate !== undefined ? { birthDate } : {}),
           ...(docType !== undefined ? { docType } : {}),
           ...(docNumber !== undefined ? { docNumber } : {}),
-          ...(internshipDate !== undefined ? { internshipDate } : {}),
-          ...(comment !== undefined ? { comment } : {})
+          ...(internshipDate !== undefined ? { internshipDate } : {})
         };
       }
       
