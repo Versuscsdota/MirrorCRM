@@ -810,7 +810,7 @@ async function renderCalendar() {
       <div style="display:grid;gap:12px">
         <div><strong>${s.start || ''}–${s.end || ''}</strong></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <label>Псевдоним/Никнейм<input id="regNick" placeholder="Ник" value="${(s.nickname||'').replace(/"/g,'&quot;')}" /></label>
+          <label>Telegram<input id="regNick" placeholder="@username" value="${(s.nickname||'').replace(/"/g,'&quot;')}" /></label>
           <label>ФИО<input id="regName" placeholder="Иванов Иван Иванович" value="${(s.title||'').replace(/"/g,'&quot;')}" /></label>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
