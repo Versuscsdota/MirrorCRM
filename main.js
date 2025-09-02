@@ -114,7 +114,10 @@ async function renderCalendar() {
     <div class="schedule-container">
       <div class="schedule-header">
         <h1>Календарь</h1>
-        <div class="current-date" id="currentDateDisplay">${new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        <div class="current-datetime" id="currentDateTimeDisplay">
+          <div class="current-time" id="currentTime">14:35</div>
+          <div class="current-date" id="currentDate">20 ноября 2023</div>
+        </div>
       </div>
       
       <div class="schedule-main-content">
@@ -200,6 +203,33 @@ async function renderCalendar() {
       year: 'numeric'
     });
   }
+
+  // Update current time and date display
+  function updateCurrentDateTime() {
+    const now = new Date();
+    const timeEl = el('#currentTime');
+    const dateEl = el('#currentDate');
+    
+    if (timeEl) {
+      timeEl.textContent = now.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    }
+    
+    if (dateEl) {
+      dateEl.textContent = now.toLocaleDateString('ru-RU', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    }
+  }
+  
+  // Update immediately and then every minute
+  updateCurrentDateTime();
+  setInterval(updateCurrentDateTime, 60000);
 
   // Kick off initial data load
   loadMonth();

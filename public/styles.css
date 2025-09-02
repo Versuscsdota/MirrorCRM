@@ -1385,9 +1385,35 @@ main{padding:16px}
 }
 
 .model-list {
-  display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.current-datetime {
+  text-align: right;
+}
+
+.current-time {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.current-date {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .model-item {
