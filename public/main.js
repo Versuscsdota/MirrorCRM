@@ -1615,14 +1615,13 @@ async function renderModelCard(id) {
   
   // Build inline chips for header subtitle (instead of @telegram)
   const headerStatusChips = `
-    <span class="status-chips">
+    <div class="profile-status-chips">
       ${activeStatuses.map(k => `
-        <span class=\"status-chip\"> 
-          <span class=\"status-indicator\" style=\"background-color: ${statusMap[k]?.color || 'var(--status-gray)'}\"></span>
+        <span class="profile-status-chip" style="background-color: ${statusMap[k]?.color || 'var(--status-gray)'}">
           ${statusMap[k]?.label || k}
         </span>
       `).join('')}
-    </span>
+    </div>
   `;
 
   view.innerHTML = `
