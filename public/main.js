@@ -817,13 +817,16 @@ async function renderCalendar() {
           <label>Телефон<input id="regPhone" placeholder="+7 (999) 123-45-67" value="${phoneInit}" /></label>
           <label>Дата рождения<input id="regBirthDate" type="date" value="${(s.dataBlock && Array.isArray(s.dataBlock.model_data) ? (s.dataBlock.model_data.find(x=>x.field==='birthDate')?.value||'') : '')}" /></label>
         </div>
-        <div class="status-dropdown">
-          <button class="status-button icon-only" id="slotStatusButton" title="Изменить статусы">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
-              <path d="M4 2c.55 0 1 .45 1 1v17a1 1 0 1 1-2 0V3c0-.55.45-1 1-1zm3.5 1h8.38c.9 0 1.62.73 1.62 1.62v7.26c0 .89-.72 1.62-1.62 1.62H9.5l-.2-.01-2.3-.39v-9.1l2.3-.39.2-.01z"/>
-            </svg>
-          </button>
-          <div class="status-dropdown-content" id="slotStatusDropdown"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="status-dropdown">
+            <button class="status-button icon-only" id="slotStatusButton" title="Изменить статусы">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <path d="M4 2c.55 0 1 .45 1 1v17a1 1 0 1 1-2 0V3c0-.55.45-1 1-1zm3.5 1h8.38c.9 0 1.62.73 1.62 1.62v7.26c0 .89-.72 1.62-1.62 1.62H9.5l-.2-.01-2.3-.39v-9.1l2.3-.39.2-.01z"/>
+              </svg>
+            </button>
+            <div class="status-dropdown-content" id="slotStatusDropdown"></div>
+          </div>
+          <div id="slotStatusChips" class="chips"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <label style="display:none">Статус слота
@@ -967,14 +970,13 @@ async function renderCalendar() {
     (function initSlotStatusDropdown(){
       const btn = box.querySelector('#slotStatusButton');
       const dd = box.querySelector('#slotStatusDropdown');
+      const chips = box.querySelector('#slotStatusChips');
       if (!btn || !dd) return;
+      // Only statuses editable here: status1 group, status3 group, and registration (status4)
       const statusMap = {
         'not_confirmed': { label: 'не подтвердилась' },
         'confirmed': { label: 'подтвердилась' },
         'fail': { label: 'слив' },
-        'arrived': { label: 'пришла' },
-        'no_show': { label: 'не пришла' },
-        'other': { label: 'другое' },
         'registration': { label: 'регистрация' },
         'reject_candidate': { label: 'отказ со стороны кандидата' },
         'reject_us': { label: 'отказ с нашей стороны' },
@@ -995,6 +997,19 @@ async function renderCalendar() {
             ${value.label}
           </label>`;
       }).join('');
+      const renderChips = (src) => {
+        if (!chips) return;
+        const a = [];
+        const st1 = src.status1 || 'not_confirmed';
+        const st3 = src.status3 || '';
+        const st4 = src.status4 === 'registration' ? 'registration' : '';
+        const lab = (k)=> statusMap[k]?.label || '';
+        a.push(`<span class="chip">${lab(st1)}</span>`);
+        if (st3) a.push(`<span class="chip">${lab(st3)}</span>`);
+        if (st4) a.push(`<span class="chip">${lab(st4)}</span>`);
+        chips.innerHTML = a.join('');
+      };
+      renderChips(s);
       // Toggle open/close
       let onDocClick, onEsc;
       const openMenu = () => {
@@ -1029,6 +1044,7 @@ async function renderCalendar() {
           const regS1 = box.querySelector('#regS1'); if (regS1) regS1.value = updated.status1 || 'not_confirmed';
           const regS4 = box.querySelector('#regS4'); if (regS4) regS4.value = updated.status4 || '';
           slots = slots.map(x => x.id === updated.id ? updated : x);
+          renderChips(updated);
           updateStartVisibility();
         } catch (e) { alert(e.message); }
       };

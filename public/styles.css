@@ -2057,7 +2057,6 @@ main{padding:16px}
   display: none;
 }
 
-.status-dropdown:hover .status-dropdown-content,
 .status-dropdown-content.open {
   display: block;
 }
@@ -2083,6 +2082,48 @@ main{padding:16px}
 
 .status-option:last-child {
   border-radius: 0 0 12px 12px;
+}
+
+/* Nicer checkbox inside status options */
+.status-option input[type="checkbox"]{
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel-light);
+  display: inline-block;
+  position: relative;
+}
+.status-option input[type="checkbox"]:hover{
+  border-color: var(--accent);
+}
+.status-option input[type="checkbox"]:checked{
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.status-option input[type="checkbox"]:checked::after{
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Chips row for selected statuses in slot modal */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 0; }
+.chip {
+  padding: 4px 8px;
+  border-radius: 9999px;
+  background: var(--panel-light);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text);
 }
 
 .line-through {
