@@ -115,8 +115,8 @@ async function renderCalendar() {
       <div class="schedule-header">
         <h1>Календарь</h1>
         <div class="current-datetime" id="currentDateTimeDisplay">
-          <div class="current-time" id="currentTime">14:35</div>
-          <div class="current-date" id="currentDate">20 ноября 2023</div>
+          <div class="current-time" id="currentTime"></div>
+          <div class="current-date" id="currentDate"></div>
         </div>
       </div>
       
@@ -207,8 +207,8 @@ async function renderCalendar() {
   // Update current time and date display
   function updateCurrentDateTime() {
     const now = new Date();
-    const timeEl = el('#currentTime');
-    const dateEl = el('#currentDate');
+    const timeEl = document.querySelector('#currentTime');
+    const dateEl = document.querySelector('#currentDate');
     
     if (timeEl) {
       timeEl.textContent = now.toLocaleTimeString('ru-RU', { 
@@ -228,7 +228,7 @@ async function renderCalendar() {
   }
   
   // Update immediately and then every minute
-  updateCurrentDateTime();
+  setTimeout(updateCurrentDateTime, 100);
   setInterval(updateCurrentDateTime, 60000);
 
   // Kick off initial data load
