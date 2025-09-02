@@ -114,7 +114,10 @@ async function renderCalendar() {
     <div class="schedule-container">
       <div class="schedule-header">
         <h1>Календарь</h1>
-        <div class="current-date" id="currentDateDisplay">${new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        <div class="current-datetime" id="currentDateTimeDisplay">
+          <div class="current-time" id="currentTime"></div>
+          <div class="current-date" id="currentDate"></div>
+        </div>
       </div>
       
       <div class="schedule-main-content">
@@ -190,6 +193,17 @@ async function renderCalendar() {
         </div>
       </div>
     </div>`;
+
+  // Live current time/date updater (header)
+  function updateHeaderCurrentDateTime() {
+    const now = new Date();
+    const t = document.querySelector('#currentTime');
+    const d = document.querySelector('#currentDate');
+    if (t) t.textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', hour12: false });
+    if (d) d.textContent = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  setTimeout(updateHeaderCurrentDateTime, 100);
+  setInterval(updateHeaderCurrentDateTime, 60000);
   // After rendering, set initial selected date label like on day click
   const selectedDateElInit = el('#selectedDate');
   if (selectedDateElInit) {
