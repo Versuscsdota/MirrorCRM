@@ -2096,6 +2096,7 @@ main{padding:16px}
   background: transparent;
   border: none;
   color: var(--text); /* stronger default for light theme */
+  opacity: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2108,6 +2109,7 @@ main{padding:16px}
   display: block;
   fill: currentColor; /* force icon to inherit color */
 }
+.icon-button svg path { fill: currentColor !important; }
 
 .icon-button:hover {
   background: var(--panel-light);
@@ -2117,11 +2119,11 @@ main{padding:16px}
 /* Ensure strong contrast in light theme */
 [data-theme="light"] .status-button.icon-only,
 [data-theme="light"] .icon-button {
-  color: var(--text);
+  color: var(--text) !important;
 }
 [data-theme="light"] .status-button.icon-only:hover,
 [data-theme="light"] .icon-button:hover {
-  color: var(--accent);
+  color: var(--accent) !important;
 }
 
 .profile-main {

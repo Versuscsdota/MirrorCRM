@@ -1661,8 +1661,8 @@ async function renderModelCard(id) {
             </div>
           </div>
           ${isAdmin ? `
-          <button class="icon-button" id="deleteModelBtn" title="Удалить модель">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+          <button class="icon-button" id="deleteModelBtn" title="Удалить модель" style="color: var(--text)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" style="display:block;color:inherit">
               <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm13-14h-3.5l-1-1h-5l-1 1H5v2h14V5z"/>
             </svg>
           </button>
