@@ -809,8 +809,26 @@ async function renderCalendar() {
     box.innerHTML = `
       <div style="display:grid;gap:12px">
         <div><strong>${s.start || ''}–${s.end || ''}</strong></div>
-        <label>ФИО<input id="regName" placeholder="Иванов Иван Иванович" value="${(s.title||'').replace(/"/g,'&quot;')}" /></label>
-        <label>Телефон<input id="regPhone" placeholder="+7 (999) 123-45-67" value="${phoneInit}" /></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label>Псевдоним/Никнейм<input id="regNick" placeholder="Ник" value="${(s.nickname||'').replace(/"/g,'&quot;')}" /></label>
+          <label>ФИО<input id="regName" placeholder="Иванов Иван Иванович" value="${(s.title||'').replace(/"/g,'&quot;')}" /></label>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label>Телефон<input id="regPhone" placeholder="+7 (999) 123-45-67" value="${phoneInit}" /></label>
+          <label>Дата рождения<input id="regBirthDate" type="date" value="${(s.dataBlock && Array.isArray(s.dataBlock.model_data) ? (s.dataBlock.model_data.find(x=>x.field==='birthDate')?.value||'') : '')}" /></label>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label>Тип документа
+            <select id="regDocType">
+              <option value="">Не указан</option>
+              <option value="passport">Паспорт РФ</option>
+              <option value="driver">Водительские права</option>
+              <option value="foreign">Загранпаспорт</option>
+            </select>
+          </label>
+          <label>Серия и номер / Номер<input id="regDocNumber" value="${(s.dataBlock && Array.isArray(s.dataBlock.model_data) ? (s.dataBlock.model_data.find(x=>x.field==='docNumber')?.value||'') : '')}" /></label>
+        </div>
+        
         <label>Статус слота
           <select id="regS1">
             <option value="confirmed" ${s1==='confirmed'?'selected':''}>Подтвержден</option>
@@ -943,6 +961,11 @@ async function renderCalendar() {
     });
     updateStartVisibility();
 
+    // Preselect doc type from dataBlock if exists
+    const prevDocType = (s.dataBlock && Array.isArray(s.dataBlock.model_data)) ? (s.dataBlock.model_data.find(x=>x.field==='docType')?.value||'') : '';
+    const docSel = box.querySelector('#regDocType');
+    if (docSel && prevDocType) docSel.value = prevDocType;
+
     const regBtn = box.querySelector('#registerBtn');
     if (regBtn) regBtn.onclick = async () => {
       // Final guard: do not allow registration if statuses are not eligible
@@ -954,8 +977,12 @@ async function renderCalendar() {
       }
       try {
         // Save latest slot state first (title/phone/statuses/interview/data_block)
-        const titleVal = (box.querySelector('#regName')?.value || '').trim();
-        const phoneVal = (box.querySelector('#regPhone')?.value || '').trim();
+        const titleVal = (box.querySelector('#regName')?.value || s.title || '').trim();
+        const nickVal = (box.querySelector('#regNick')?.value || '').trim();
+        const phoneVal = (box.querySelector('#regPhone')?.value || s.phone || s.contacts?.phone || '').trim();
+        const birthDateVal = (box.querySelector('#regBirthDate')?.value || '').trim();
+        const docTypeVal = (box.querySelector('#regDocType')?.value || '').trim();
+        const docNumberVal = (box.querySelector('#regDocNumber')?.value || '').trim();
         const s1v = (box.querySelector('#regS1')?.value || 'not_confirmed');
         const s2v = (box.querySelector('#regS2')?.value || '');
         const textVal = (box.querySelector('#iText')?.value || '').trim();
@@ -969,7 +996,11 @@ async function renderCalendar() {
           dataBlock: {
             model_data: [
               { field: 'fullName', value: titleVal },
-              { field: 'phone', value: phoneVal }
+              ...(nickVal ? [{ field: 'name', value: nickVal }] : []),
+              { field: 'phone', value: phoneVal },
+              ...(birthDateVal ? [{ field: 'birthDate', value: birthDateVal }] : []),
+              ...(docTypeVal ? [{ field: 'docType', value: docTypeVal }] : []),
+              ...(docNumberVal ? [{ field: 'docNumber', value: docNumberVal }] : [])
             ]
           }
         };
@@ -984,7 +1015,7 @@ async function renderCalendar() {
           action: 'registerFromSlot',
           date: (s.date || date),
           slotId: s.id,
-          name: titleVal || s.title || 'Кандидат',
+          name: (nickVal || titleVal || s.title || 'Кандидат'),
           fullName: titleVal || undefined,
           phone: phoneVal || undefined,
           status1: s1v,
