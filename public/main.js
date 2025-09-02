@@ -1642,16 +1642,8 @@ async function renderModelCard(id) {
         </div>
         <div class="profile-header-right">
           <div class="status-dropdown">
-            <button class="status-button" id="statusButton">
-              <span class="status-chips">
-                ${activeStatuses.map(k => `
-                  <span class="status-chip">
-                    <span class="status-indicator" style="background-color: ${statusMap[k]?.color || 'var(--status-gray)'}"></span>
-                    ${statusMap[k]?.label || k}
-                  </span>
-                `).join('')}
-              </span>
-              <span class="material-symbols-rounded">expand_more</span>
+            <button class="status-button icon-only" id="statusButton" title="Изменить статусы">
+              <span class="material-symbols-rounded">flag</span>
             </button>
             <div class="status-dropdown-content" id="statusDropdown">
               ${Object.entries(statusMap).map(([key, value]) => {
