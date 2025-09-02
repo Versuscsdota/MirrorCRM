@@ -13,7 +13,7 @@ const ALLOWED_MIME = new Set([
   'application/msword',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   // audio
-  'audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/wav',
+  'audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/wav', 'audio/mp3',
   // video
   'video/mp4', 'video/webm', 'video/ogg'
 ]);
@@ -144,10 +144,13 @@ export async function POST(env, request) {
   if (modelId) {
     const model = await env.CRM_KV.get(`model:${modelId}`);
     if (!model) return notFound('model');
-    entity = { type: 'model', id: modelId, roles: ['root','admin'] };
+    // Interviewers ARE allowed to upload to models
+    entity = { type: 'model', id: modelId };
   } else {
-    // slot upload also restricted to root/admin
-    entity = { type: 'slot', id: slotId, roles: ['root','admin'] };
+    // Slot uploads are allowed for root/admin/interviewer
+    const { error: slotErr } = await requireRole(env, request, ['root','admin','interviewer']);
+    if (slotErr) return slotErr;
+    entity = { type: 'slot', id: slotId };
   }
 
   const created = [];
