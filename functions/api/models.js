@@ -48,9 +48,13 @@ export async function GET(env, request) {
 }
 
 export async function POST(env, request) {
-  const { sess, error } = await requireRole(env, request, ['root','admin']);
-  if (error) return error;
+  // Read body first to determine action-specific role permissions
   let body; try { body = await request.json(); } catch { return badRequest('Expect JSON'); }
+  const allowed = (body && body.action === 'registerFromSlot')
+    ? ['root','admin','interviewer']
+    : ['root','admin'];
+  const { sess, error } = await requireRole(env, request, allowed);
+  if (error) return error;
 
   // Action: register new model directly from a slot with full registration data
   if (body.action === 'registerFromSlot') {
