@@ -6,7 +6,7 @@ import { requireRole, newId, auditLog } from '../_utils.js';
 
 // Validation helpers
 const ALLOWED_MIME = new Set([
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif',
   'application/pdf', 'text/plain', 'text/csv',
   'application/zip',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
