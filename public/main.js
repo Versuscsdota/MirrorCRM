@@ -961,7 +961,11 @@ async function renderCalendar() {
             ]
           }
         };
-        await api('/api/schedule', { method: 'PUT', body: JSON.stringify(savePayload) });
+        // Attempt to save slot, but do not block registration if forbidden (e.g., interviewer limited perms)
+        try { await api('/api/schedule', { method: 'PUT', body: JSON.stringify(savePayload) }); }
+        catch (err) {
+          console.warn('Slot save before registration failed, continuing with registration:', err?.message || err);
+        }
 
         // Register model from slot (backend will set status4=registration and merge data_block)
         const modelPayload = {
