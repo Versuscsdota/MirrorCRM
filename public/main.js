@@ -930,7 +930,12 @@ async function renderCalendar() {
       const v2 = (box.querySelector('#regS2')?.value || '');
       const canStart = (v1 === 'confirmed' && v2 === 'arrived');
       const btn = box.querySelector('#registerBtn');
-      if (btn) btn.style.display = canStart ? 'inline-flex' : 'none';
+      const hint = box.querySelector('#startHint');
+      if (btn) {
+        btn.style.display = canStart ? 'inline-flex' : 'none';
+        btn.disabled = !canStart;
+      }
+      if (hint) hint.style.display = canStart ? 'none' : 'inline';
     }
     ['#regS1','#regS2','#regS4'].forEach(sel => {
       const elx = box.querySelector(sel);
@@ -940,6 +945,13 @@ async function renderCalendar() {
 
     const regBtn = box.querySelector('#registerBtn');
     if (regBtn) regBtn.onclick = async () => {
+      // Final guard: do not allow registration if statuses are not eligible
+      const v1 = (box.querySelector('#regS1')?.value || '');
+      const v2 = (box.querySelector('#regS2')?.value || '');
+      if (!(v1 === 'confirmed' && v2 === 'arrived')) {
+        updateStartVisibility();
+        return;
+      }
       try {
         // Save latest slot state first (title/phone/statuses/interview/data_block)
         const titleVal = (box.querySelector('#regName')?.value || '').trim();
