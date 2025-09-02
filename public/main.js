@@ -1470,6 +1470,24 @@ function renderAppShell(me) {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     themeBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
   }
+  // Hook delete button for admins
+  if (isAdmin) {
+    const delBtn = el('#deleteModelBtn');
+    if (delBtn) {
+      delBtn.onclick = async () => {
+        const ok = confirm('Удалить модель? Действие необратимо.');
+        if (!ok) return;
+        try {
+          await api(`/api/models?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+          // Go back to models list
+          renderModels();
+        } catch (e) {
+          alert('Не удалось удалить модель. Подробности в консоли.');
+          console.error('Delete model failed', e);
+        }
+      };
+    }
+  }
   
   // Logout functionality
   const logoutBtn = el('#logoutBtn');
@@ -1660,6 +1678,13 @@ async function renderModelCard(id) {
               }).join('')}
             </div>
           </div>
+          ${isAdmin ? `
+          <button class="icon-button" id="deleteModelBtn" title="Удалить модель">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+              <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm13-14h-3.5l-1-1h-5l-1 1H5v2h14V5z"/>
+            </svg>
+          </button>
+          ` : ''}
           <button class="icon-button" id="editProfile" title="Редактировать">
             <span class="material-symbols-rounded">edit</span>
           </button>
