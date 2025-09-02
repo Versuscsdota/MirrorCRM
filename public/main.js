@@ -1017,13 +1017,14 @@ async function renderCalendar() {
         dd.classList.add('open');
         onDocClick = (e) => { if (!dd.contains(e.target) && !btn.contains(e.target)) closeMenu(); };
         onEsc = (e) => { if (e.key === 'Escape') closeMenu(); };
-        document.addEventListener('click', onDocClick, true);
-        document.addEventListener('keydown', onEsc, true);
+        // Use bubble phase so clicks inside dropdown can stopPropagation and remain clickable
+        document.addEventListener('click', onDocClick);
+        document.addEventListener('keydown', onEsc);
       };
       const closeMenu = () => {
         dd.classList.remove('open');
-        if (onDocClick) document.removeEventListener('click', onDocClick, true);
-        if (onEsc) document.removeEventListener('keydown', onEsc, true);
+        if (onDocClick) document.removeEventListener('click', onDocClick);
+        if (onEsc) document.removeEventListener('keydown', onEsc);
       };
       btn.onclick = (ev) => { ev.stopPropagation(); dd.classList.contains('open') ? closeMenu() : openMenu(); };
       dd.addEventListener('click', (e) => e.stopPropagation());
