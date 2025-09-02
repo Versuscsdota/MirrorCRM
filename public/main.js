@@ -1622,7 +1622,7 @@ async function renderModelCard(id) {
           </div>
           <div class="profile-title-info">
             <h2 class="profile-title">${displayName}</h2>
-            <p class="profile-username">@${telegram}</p>
+            ${headerStatusChips}
           </div>
         </div>
         <div class="profile-header-right">
