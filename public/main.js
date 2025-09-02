@@ -1470,24 +1470,6 @@ function renderAppShell(me) {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     themeBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
   }
-  // Hook delete button for admins
-  if (isAdmin) {
-    const delBtn = el('#deleteModelBtn');
-    if (delBtn) {
-      delBtn.onclick = async () => {
-        const ok = confirm('Удалить модель? Действие необратимо.');
-        if (!ok) return;
-        try {
-          await api(`/api/models?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
-          // Go back to models list
-          renderModels();
-        } catch (e) {
-          alert('Не удалось удалить модель. Подробности в консоли.');
-          console.error('Delete model failed', e);
-        }
-      };
-    }
-  }
   
   // Logout functionality
   const logoutBtn = el('#logoutBtn');
