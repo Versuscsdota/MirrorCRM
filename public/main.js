@@ -1596,6 +1596,7 @@ async function renderModelCard(id) {
     const keys = [];
     const s1 = m.status1 || 'not_confirmed';
     if (s1) keys.push(s1);
+    if (m.status2) keys.push(m.status2);
     if (m.status3) keys.push(m.status3);
     if (m.status4 === 'registration') keys.push('registration');
     return keys;
@@ -1607,8 +1608,11 @@ async function renderModelCard(id) {
     'not_confirmed': { label: 'не подтвердилась', color: 'var(--status-green-light)' },
     'confirmed': { label: 'подтвердилась', color: 'var(--status-yellow)' },
     'fail': { label: 'слив', color: 'var(--status-red)' },
+    'arrived': { label: 'пришла', color: 'var(--status-green-dark)' },
+    'no_show': { label: 'не пришла', color: 'var(--status-red)' },
+    'other': { label: 'другое', color: 'var(--status-gray)' },
     'registration': { label: 'регистрация', color: 'var(--status-green-dark)' },
-    'reject_candidate': { label: 'отказ со стороны...', color: 'var(--status-green-dark)' },
+    'reject_candidate': { label: 'отказ со стороны кандидата', color: 'var(--status-green-dark)' },
     'reject_us': { label: 'отказ с нашей стороны', color: 'var(--status-black)' },
     'thinking': { label: 'ушла на подумать', color: 'var(--status-gray)' }
   };
