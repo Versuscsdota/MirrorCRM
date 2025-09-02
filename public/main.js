@@ -653,14 +653,14 @@ async function renderCalendar() {
         const status4 = (box.querySelector('#regS4').value || '');
         const timeChanged = (start !== currStart);
         const comment = timeChanged ? ((form.querySelector('#sComment') && form.querySelector('#sComment').value) || '').trim() : '';
-        console.log('[editSlot] Save slot:', { status1, status2, status4, title, notes, timeChanged, comment });
+        console.debug('[editSlot] Save slot:', { status1, status2, status4, title, notes, timeChanged, comment });
         if (timeChanged && !comment) { setError('Требуется комментарий для изменения времени'); return; }
         if (!title) { setError('Заполните ФИО'); return; }
         try {
           const payload = { id: s.id, date: (s.date || date), start, end, title, notes, comment, status1, status2: status2 || undefined, status4: status4 || undefined };
-          console.log('[editSlot] API payload:', payload);
+          console.debug('[editSlot] API payload:', payload);
           const updated = await api('/api/schedule', { method: 'PUT', body: JSON.stringify(payload) });
-          console.log('[editSlot] API response:', updated);
+          console.debug('[editSlot] API response:', updated);
           slots = slots.map(x => x.id === s.id ? updated : x).sort((a,b)=> (a.start||'').localeCompare(b.start||''));
           renderList();
           close();
@@ -1044,6 +1044,8 @@ async function renderCalendar() {
           const regS1 = box.querySelector('#regS1'); if (regS1) regS1.value = updated.status1 || 'not_confirmed';
           const regS4 = box.querySelector('#regS4'); if (regS4) regS4.value = updated.status4 || '';
           slots = slots.map(x => x.id === updated.id ? updated : x);
+          // refresh schedule list to reflect new colors/status immediately
+          renderList();
           renderChips(updated);
           updateStartVisibility();
         } catch (e) { alert(e.message); }
@@ -2332,33 +2334,33 @@ async function renderModelCard(id) {
 
   // Delete model functionality (direct binding + delegated fallback)
   window._handleDeleteModel = window._handleDeleteModel || (async (btn) => {
-    console.log('[model/delete] handler called');
+    console.debug('[model/delete] handler called');
     try {
       const bid = btn?.dataset?.id || id;
       const bname = btn?.dataset?.name || (model && model.name) || '';
-      console.log('[model/delete] extracted data:', { bid, bname });
+      console.debug('[model/delete] extracted data:', { bid, bname });
       if (!bid) { console.warn('[model/delete] missing id on button'); return; }
-      if (btn && btn.disabled) { console.log('[model/delete] button disabled, returning'); return; }
+      if (btn && btn.disabled) { console.debug('[model/delete] button disabled, returning'); return; }
       
-      console.log('[model/delete] checking user role:', window.currentUser?.role);
+      console.debug('[model/delete] checking user role:', window.currentUser?.role);
       if (window.currentUser.role === 'root') {
-        console.log('[model/delete] requesting root password');
+        console.debug('[model/delete] requesting root password');
         if (!await confirmRootPassword(`удаление модели "${bname}"`)) {
-          console.log('[model/delete] root password cancelled');
+          console.debug('[model/delete] root password cancelled');
           return;
         }
       }
       
-      console.log('[model/delete] showing confirmation dialog');
+      console.debug('[model/delete] showing confirmation dialog');
       if (!confirm(`Удалить модель "${bname}"?\n\nЭто действие удалит:\n• Профиль модели\n• Все загруженные файлы\n• Необратимо`)) {
-        console.log('[model/delete] user cancelled confirmation');
+        console.debug('[model/delete] user cancelled confirmation');
         return;
       }
       
       if (btn) btn.disabled = true;
-      console.log('[model/delete] sending DELETE /api/models', { id: bid });
+      console.debug('[model/delete] sending DELETE /api/models', { id: bid });
       await api('/api/models?id=' + encodeURIComponent(bid), { method: 'DELETE' });
-      console.log('[model/delete] success');
+      console.debug('[model/delete] success');
       renderModels();
     } catch (err) {
       console.warn('[model/delete] failed', err);
