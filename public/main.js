@@ -218,13 +218,7 @@ async function renderCalendar() {
     addSlotBtn.onclick = createSlot;
   }
   
-  // Wire up event handlers for schedule events
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.schedule-event[data-id]')) {
-      const slotId = e.target.closest('.schedule-event[data-id]').dataset.id;
-      if (slotId) openSlot(slotId);
-    }
-  });
+  // Slot click handling is delegated per-render inside renderList() to avoid duplicate bindings
 
   async function load() {
     const res = await api('/api/schedule?date=' + encodeURIComponent(date));
@@ -355,7 +349,13 @@ async function renderCalendar() {
       `;
     }).join('');
     
-    // No additional wiring needed - handled by document event listener above
+    // Delegate clicks to open a slot (rebound each render to keep fresh closures)
+    table.onclick = (e) => {
+      const target = e.target && e.target.closest && e.target.closest('.schedule-event[data-id]');
+      if (!target) return;
+      const slotId = target.dataset.id;
+      if (slotId) openSlot(slotId);
+    };
   }
 
   // Month grid with slot previews
@@ -669,7 +669,7 @@ async function renderCalendar() {
     // Attach handler to perform registration when regSection visible and user clicks a special footer button we add below
     const regSection = box.querySelector('#regSection');
     if (regSection) {
-      // Add footer button only when section is shown
+      // Ensure footer exists; button will reveal section on first click
       const tryAddFooter = () => {
         if (!regSection || regSection.dataset.footer) return;
         const footer = document.createElement('div');
@@ -683,6 +683,15 @@ async function renderCalendar() {
         regSection.appendChild(footer);
         regSection.dataset.footer = '1';
         regBtn.onclick = async () => {
+          // Phase 1: first click reveals the registration fields
+          if (regSection && (regSection.style.display === 'none' || !regSection.dataset.shown)) {
+            regSection.style.display = 'block';
+            regSection.dataset.shown = '1';
+            regBtn.textContent = 'Подтвердить регистрацию';
+            const first = box.querySelector('#regName') || box.querySelector('input,select,textarea');
+            if (first && first.focus) first.focus();
+            return;
+          }
           const name = (box.querySelector('#regName').value || '').trim();
           const fullName = name;
           const phone = (box.querySelector('#regPhone').value || '').trim();
@@ -730,8 +739,8 @@ async function renderCalendar() {
           }
         };
       };
-      // If already visible (after click), add footer
-      if (regSection.style.display !== 'none') tryAddFooter();
+      // Always add footer; button now reveals the section on first click
+      tryAddFooter();
       // Also hook startRegBtn to add footer after show
       const startBtn = box.querySelector('#startRegBtn');
       if (startBtn) startBtn.addEventListener('click', tryAddFooter, { once: true });
