@@ -817,19 +817,16 @@ async function renderCalendar() {
           <label>Телефон<input id="regPhone" placeholder="+7 (999) 123-45-67" value="${phoneInit}" /></label>
           <label>Дата рождения<input id="regBirthDate" type="date" value="${(s.dataBlock && Array.isArray(s.dataBlock.model_data) ? (s.dataBlock.model_data.find(x=>x.field==='birthDate')?.value||'') : '')}" /></label>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <label>Тип документа
-            <select id="regDocType">
-              <option value="">Не указан</option>
-              <option value="passport">Паспорт РФ</option>
-              <option value="driver">Водительские права</option>
-              <option value="foreign">Загранпаспорт</option>
-            </select>
-          </label>
-          <label>Серия и номер / Номер<input id="regDocNumber" value="${(s.dataBlock && Array.isArray(s.dataBlock.model_data) ? (s.dataBlock.model_data.find(x=>x.field==='docNumber')?.value||'') : '')}" /></label>
+        <div class="status-dropdown">
+          <button class="status-button icon-only" id="slotStatusButton" title="Изменить статусы">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+              <path d="M4 2c.55 0 1 .45 1 1v17a1 1 0 1 1-2 0V3c0-.55.45-1 1-1zm3.5 1h8.38c.9 0 1.62.73 1.62 1.62v7.26c0 .89-.72 1.62-1.62 1.62H9.5l-.2-.01-2.3-.39v-9.1l2.3-.39.2-.01z"/>
+            </svg>
+          </button>
+          <div class="status-dropdown-content" id="slotStatusDropdown"></div>
         </div>
-        
-        <label>Статус слота
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label style="display:none">Статус слота
           <select id="regS1">
             <option value="confirmed" ${s1==='confirmed'?'selected':''}>Подтвержден</option>
             <option value="not_confirmed" ${!s1 || s1==='not_confirmed'?'selected':''}>Не подтвержден</option>
@@ -965,6 +962,89 @@ async function renderCalendar() {
     const prevDocType = (s.dataBlock && Array.isArray(s.dataBlock.model_data)) ? (s.dataBlock.model_data.find(x=>x.field==='docType')?.value||'') : '';
     const docSel = box.querySelector('#regDocType');
     if (docSel && prevDocType) docSel.value = prevDocType;
+
+    // Slot status dropdown (model-like)
+    (function initSlotStatusDropdown(){
+      const btn = box.querySelector('#slotStatusButton');
+      const dd = box.querySelector('#slotStatusDropdown');
+      if (!btn || !dd) return;
+      const statusMap = {
+        'not_confirmed': { label: 'не подтвердилась' },
+        'confirmed': { label: 'подтвердилась' },
+        'fail': { label: 'слив' },
+        'arrived': { label: 'пришла' },
+        'no_show': { label: 'не пришла' },
+        'other': { label: 'другое' },
+        'registration': { label: 'регистрация' },
+        'reject_candidate': { label: 'отказ со стороны кандидата' },
+        'reject_us': { label: 'отказ с нашей стороны' },
+        'thinking': { label: 'ушла на подумать' }
+      };
+      const active = [];
+      const s1v0 = s.status1 || 'not_confirmed';
+      if (s1v0) active.push(s1v0);
+      if (s.status3) active.push(s.status3);
+      if (s.status4 === 'registration') active.push('registration');
+      // Build content
+      dd.innerHTML = Object.entries(statusMap).map(([key, value]) => {
+        const checked = active.includes(key) ? 'checked' : '';
+        return `
+          <label class="status-option" data-status="${key}">
+            <input type="checkbox" class="status-checkbox" data-status="${key}" ${checked} />
+            <span class="status-indicator"></span>
+            ${value.label}
+          </label>`;
+      }).join('');
+      // Toggle open/close
+      let onDocClick, onEsc;
+      const openMenu = () => {
+        if (dd.classList.contains('open')) return;
+        dd.classList.add('open');
+        onDocClick = (e) => { if (!dd.contains(e.target) && !btn.contains(e.target)) closeMenu(); };
+        onEsc = (e) => { if (e.key === 'Escape') closeMenu(); };
+        document.addEventListener('click', onDocClick, true);
+        document.addEventListener('keydown', onEsc, true);
+      };
+      const closeMenu = () => {
+        dd.classList.remove('open');
+        if (onDocClick) document.removeEventListener('click', onDocClick, true);
+        if (onEsc) document.removeEventListener('keydown', onEsc, true);
+      };
+      btn.onclick = (ev) => { ev.stopPropagation(); dd.classList.contains('open') ? closeMenu() : openMenu(); };
+      dd.addEventListener('click', (e) => e.stopPropagation());
+      dd.addEventListener('mousedown', (e) => e.stopPropagation());
+      const group1 = ['not_confirmed','confirmed','fail'];
+      const group3 = ['reject_candidate','reject_us','thinking'];
+      const applyFromCheckboxes = async () => {
+        const selected = Array.from(dd.querySelectorAll('.status-checkbox')).filter(i=>i.checked).map(i=>i.dataset.status);
+        let newS1 = selected.find(k=>group1.includes(k)) || 'not_confirmed';
+        let newS3 = selected.find(k=>group3.includes(k)) || '';
+        const newS4 = selected.includes('registration') ? 'registration' : '';
+        try {
+          const payload = { id: s.id, date: (s.date || date), status1: newS1 };
+          if (newS3) payload.status3 = newS3; else payload.status3 = '';
+          if (newS4) payload.status4 = 'registration'; else payload.status4 = '';
+          const updated = await api('/api/schedule', { method: 'PUT', body: JSON.stringify(payload) });
+          // reflect locally
+          const regS1 = box.querySelector('#regS1'); if (regS1) regS1.value = updated.status1 || 'not_confirmed';
+          const regS4 = box.querySelector('#regS4'); if (regS4) regS4.value = updated.status4 || '';
+          slots = slots.map(x => x.id === updated.id ? updated : x);
+          updateStartVisibility();
+        } catch (e) { alert(e.message); }
+      };
+      dd.querySelectorAll('.status-checkbox').forEach(inp => {
+        inp.addEventListener('change', () => {
+          const key = inp.dataset.status;
+          if (group1.includes(key) && inp.checked) {
+            dd.querySelectorAll('.status-checkbox').forEach(o => { if (o!==inp && group1.includes(o.dataset.status)) o.checked = false; });
+          }
+          if (group3.includes(key) && inp.checked) {
+            dd.querySelectorAll('.status-checkbox').forEach(o => { if (o!==inp && group3.includes(o.dataset.status)) o.checked = false; });
+          }
+          applyFromCheckboxes();
+        });
+      });
+    })();
 
     const regBtn = box.querySelector('#registerBtn');
     if (regBtn) regBtn.onclick = async () => {
