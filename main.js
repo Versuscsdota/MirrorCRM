@@ -186,29 +186,25 @@ async function renderCalendar() {
         
         <div class="schedule-slots-container">
           <div class="schedule-slots-header">
-            <h2 id="selectedDate">${today}</h2>
+          <div class="current-datetime" id="currentDateTimeDisplay2">
+            <div class="current-time" id="currentTime2"></div>
+            <div class="current-date" id="currentDate2"></div>
           </div>
+        </div>
           
           <div class="schedule-slots-grid" id="scheduleTable"></div>
         </div>
       </div>
     </div>`;
-  // After rendering, set initial selected date label like on day click
-  const selectedDateElInit = el('#selectedDate');
-  if (selectedDateElInit) {
-    selectedDateElInit.textContent = new Date(date + 'T00:00:00').toLocaleDateString('ru-RU', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  }
+  // selectedDate header replaced by live time/date block
 
   // Update current time and date display
   function updateCurrentDateTime() {
     const now = new Date();
     const timeEl = document.querySelector('#currentTime');
     const dateEl = document.querySelector('#currentDate');
+    const timeEl2 = document.querySelector('#currentTime2');
+    const dateEl2 = document.querySelector('#currentDate2');
     
     if (timeEl) {
       timeEl.textContent = now.toLocaleTimeString('ru-RU', { 
@@ -217,9 +213,23 @@ async function renderCalendar() {
         hour12: false 
       });
     }
+    if (timeEl2) {
+      timeEl2.textContent = now.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    }
     
     if (dateEl) {
       dateEl.textContent = now.toLocaleDateString('ru-RU', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    }
+    if (dateEl2) {
+      dateEl2.textContent = now.toLocaleDateString('ru-RU', { 
         day: 'numeric', 
         month: 'long', 
         year: 'numeric' 
