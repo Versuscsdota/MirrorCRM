@@ -1605,23 +1605,24 @@ async function renderModelCard(id) {
   
   // Status mapping
   const statusMap = {
-    'not_confirmed': { label: 'не подтвердилась', color: 'var(--status-green-light)' },
-    'confirmed': { label: 'подтвердилась', color: 'var(--status-yellow)' },
-    'fail': { label: 'слив', color: 'var(--status-red)' },
-    'arrived': { label: 'пришла', color: 'var(--status-green-dark)' },
-    'no_show': { label: 'не пришла', color: 'var(--status-red)' },
-    'other': { label: 'другое', color: 'var(--status-gray)' },
-    'registration': { label: 'регистрация', color: 'var(--status-green-dark)' },
-    'reject_candidate': { label: 'отказ со стороны кандидата', color: 'var(--status-green-dark)' },
-    'reject_us': { label: 'отказ с нашей стороны', color: 'var(--status-black)' },
-    'thinking': { label: 'ушла на подумать', color: 'var(--status-gray)' }
+    // Light backgrounds -> dark text; Dark backgrounds -> white text
+    'not_confirmed': { label: 'не подтвердилась', color: 'var(--status-green-light)', textColor: '#1c1c1e' },
+    'confirmed': { label: 'подтвердилась', color: 'var(--status-yellow)', textColor: '#1c1c1e' },
+    'fail': { label: 'слив', color: 'var(--status-red)', textColor: '#ffffff' },
+    'arrived': { label: 'пришла', color: 'var(--status-green-dark)', textColor: '#ffffff' },
+    'no_show': { label: 'не пришла', color: 'var(--status-red)', textColor: '#ffffff' },
+    'other': { label: 'другое', color: 'var(--status-gray)', textColor: '#1c1c1e' },
+    'registration': { label: 'регистрация', color: 'var(--status-green-dark)', textColor: '#ffffff' },
+    'reject_candidate': { label: 'отказ со стороны кандидата', color: 'var(--status-green-dark)', textColor: '#ffffff' },
+    'reject_us': { label: 'отказ с нашей стороны', color: 'var(--status-black)', textColor: '#ffffff' },
+    'thinking': { label: 'ушла на подумать', color: 'var(--status-gray)', textColor: '#1c1c1e' }
   };
   
   // Build inline chips for header subtitle (instead of @telegram)
   const headerStatusChips = `
     <div class="profile-status-chips">
       ${activeStatuses.map(k => `
-        <span class="profile-status-chip" style="background-color: ${statusMap[k]?.color || 'var(--status-gray)'}">
+        <span class="profile-status-chip" style="background-color: ${statusMap[k]?.color || 'var(--status-gray)'}; color: ${statusMap[k]?.textColor || '#1c1c1e'}">
           ${statusMap[k]?.label || k}
         </span>
       `).join('')}
@@ -1643,7 +1644,9 @@ async function renderModelCard(id) {
         <div class="profile-header-right">
           <div class="status-dropdown">
             <button class="status-button icon-only" id="statusButton" title="Изменить статусы">
-              <span class="material-symbols-rounded">flag</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <path d="M4 2c.55 0 1 .45 1 1v17a1 1 0 1 1-2 0V3c0-.55.45-1 1-1zm3.5 1h8.38c.9 0 1.62.73 1.62 1.62v7.26c0 .89-.72 1.62-1.62 1.62H9.5l-.2-.01-2.3-.39v-9.1l2.3-.39.2-.01z"/>
+              </svg>
             </button>
             <div class="status-dropdown-content" id="statusDropdown">
               ${Object.entries(statusMap).map(([key, value]) => {
@@ -1805,7 +1808,7 @@ async function renderModelCard(id) {
           // Show current statuses as chips
           const currentStatuses = [h.status1, h.status2, h.status3, h.status4].filter(Boolean);
           statusChips = currentStatuses.map(s => 
-            `<span class="history-status-chip" style="background: ${statusMap[s]?.color || 'var(--status-gray)'}">${statusMap[s]?.label || s}</span>`
+            `<span class="history-status-chip" style="background: ${statusMap[s]?.color || 'var(--status-gray)'}; color: ${statusMap[s]?.textColor || '#1c1c1e'}">${statusMap[s]?.label || s}</span>`
           ).join('');
         } else {
           actionText = `${h.type === 'status_sync_from_slot' ? 'Синхронизация со слотом' : 'Изменение статуса'} — ${userName}`;

@@ -2000,6 +2000,34 @@ main{padding:16px}
   border-color: var(--accent-weak);
 }
 
+/* Icon-only variant for status trigger */
+.status-button.icon-only {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--panel-light);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-button.icon-only .material-symbols-rounded {
+  font-size: 20px;
+  color: var(--text);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+}
+
+.status-button.icon-only:hover {
+  background: var(--panel);
+  border-color: var(--accent-weak);
+}
+
+.status-button.icon-only:hover .material-symbols-rounded {
+  color: var(--accent);
+}
+
 .status-indicator {
   width: 12px;
   height: 12px;
