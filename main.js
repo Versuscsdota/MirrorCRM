@@ -658,84 +658,43 @@ async function renderCalendar() {
     
     await modalPromise;
 
-    // Wire registration action inside the already open modal lifecycle
-    const doRegisterBtn = box.querySelector('#doRegister');
-    if (doRegisterBtn) {
-      doRegisterBtn.onclick = async () => {
-        // no-op: currently not used (we place registration under StartReg flow below)
-      };
-    }
+    // Register directly from slot: no gating
+    const regBtn = document.createElement('button');
+    regBtn.textContent = 'Зарегистрировать';
+    regBtn.className = 'primary';
+    form.appendChild(regBtn);
+    regBtn.onclick = async () => {
+      try {
+        // 1) Save latest slot state (non-blocking if fails)
+        const titleVal = (form.querySelector('#sTitle')?.value || s.title || '').trim();
+        const notesVal = (form.querySelector('#sNotes')?.value || '').trim();
+        const s1v = (form.querySelector('#sStatus1')?.value || 'not_confirmed');
+        const savePayload = { id: s.id, date: (s.date || date), title: titleVal, notes: notesVal, status1: s1v };
+        try { await api('/api/schedule', { method: 'PUT', body: JSON.stringify(savePayload) }); }
+        catch (err) { console.warn('Slot save before registration failed, continue:', err?.message || err); }
 
-    // Attach handler to perform registration when regSection visible and user clicks a special footer button we add below
-    const regSection = box.querySelector('#regSection');
-    if (regSection) {
-      // Add footer button only when section is shown
-      const tryAddFooter = () => {
-        if (!regSection || regSection.dataset.footer) return;
-        const footer = document.createElement('div');
-        footer.style.display = 'flex';
-        footer.style.gap = '8px';
-        footer.style.marginTop = '8px';
-        const regBtn = document.createElement('button');
-        regBtn.textContent = 'Зарегистрировать';
-        regBtn.className = 'primary';
-        footer.appendChild(regBtn);
-        regSection.appendChild(footer);
-        regSection.dataset.footer = '1';
-        regBtn.onclick = async () => {
-          const name = (box.querySelector('#regName').value || '').trim();
-          const fullName = name;
-          const phone = (box.querySelector('#regPhone').value || '').trim();
-          const birthDate = (box.querySelector('#regBirth').value || '').trim();
-          const docType = (box.querySelector('#regDocType').value || '').trim();
-          const docNumber = (box.querySelector('#regDocNumber').value || '').trim();
-          const internshipDate = (box.querySelector('#regIntern').value || '').trim();
-          if (!birthDate || !docType || !docNumber) { alert('Заполните обязательные поля регистрации'); return; }
-          try {
-            // 1) Upload chosen files to slot (so backend will link them during registration)
-            const photo = box.querySelector('#regPhoto').files?.[0];
-            const audio = box.querySelector('#regAudio').files?.[0];
-            if (photo || audio) {
-              const fd = new FormData();
-              fd.append('slotId', s.id);
-              if (photo) fd.append('file', photo);
-              if (audio) fd.append('file', audio);
-              await api('/api/files', { method: 'POST', body: fd });
-            }
-            // 2) Register model from slot
-            const payload = {
-              action: 'registerFromSlot',
-              date: s.date || date,
-              slotId: s.id,
-              name,
-              fullName,
-              phone,
-              birthDate,
-              docType,
-              docNumber,
-              internshipDate,
-              comment: (s.interview && s.interview.text) || ''
-            };
-            const res = await api('/api/models', { method: 'POST', body: JSON.stringify(payload) });
-            // 3) Refresh slots list to reflect link and statuses
-            const rel = await api('/api/schedule?date=' + encodeURIComponent(s.date || date));
-            slots = rel.items || [];
-            renderList();
-            // 4) Close modal
-            const modal = document.querySelector('.modal-backdrop');
-            if (modal) modal.remove();
-            alert('Модель зарегистрирована');
-          } catch (e) {
-            alert(e.message);
-          }
+        // 2) Register model from slot
+        const modelPayload = {
+          action: 'registerFromSlot',
+          date: (s.date || date),
+          slotId: s.id,
+          name: (titleVal || s.title || 'Кандидат'),
+          fullName: titleVal || undefined,
+          phone: s.phone || undefined,
+          status1: s1v,
         };
-      };
-      // If already visible (after click), add footer
-      if (regSection.style.display !== 'none') tryAddFooter();
-      // Also hook startRegBtn to add footer after show
-      const startBtn = box.querySelector('#startRegBtn');
-      if (startBtn) startBtn.addEventListener('click', tryAddFooter, { once: true });
-    }
+        await api('/api/models', { method: 'POST', body: JSON.stringify(modelPayload) });
+
+        // 3) Refresh slots and close modal
+        const rel = await api('/api/schedule?date=' + encodeURIComponent(s.date || date));
+        slots = rel.items || [];
+        renderList();
+        const modal = document.querySelector('.modal-backdrop'); if (modal) modal.remove();
+        alert('Модель зарегистрирована');
+      } catch (e) {
+        alert(e.message || 'Не удалось выполнить регистрацию');
+      }
+    };
   }
 
   async function deleteSlot(id) {
@@ -813,11 +772,9 @@ async function renderCalendar() {
         </label>
 
         <div style="display:flex;align-items:center;gap:8px">
-          <button id="registerBtn" type="button" class="success" style="display:none">Зарегистрировать</button>
-          <span id="startHint" style="font-size:12px;color:#9aa">Кнопка появится при: Подтвержден · Пришла</span>
+          <button id="registerBtn" type="button" class="success">Зарегистрировать</button>
         </div>
 
-        
 
         <label>Заметки интервью<textarea id="iText" rows="4" placeholder="Текст интервью">${(s.interview && s.interview.text) || ''}</textarea></label>
         <div>
@@ -836,7 +793,43 @@ async function renderCalendar() {
       </div>`;
     const modalPromise = showModal({ title: 'Слот', content: box, submitText: 'Сохранить' });
 
-    // Removed legacy Start Registration UI; registration happens via Data Block only
+    // Register directly from slot: no gating
+    const regBtn = box.querySelector('#registerBtn');
+    if (regBtn) regBtn.onclick = async () => {
+      try {
+        // 1) Save latest slot state (non-blocking if fails)
+        const titleVal = (box.querySelector('#regName')?.value || s.title || '').trim();
+        const phoneVal = (box.querySelector('#regPhone')?.value || s.phone || s.contacts?.phone || '').trim();
+        const s1v = (box.querySelector('#regS1')?.value || 'not_confirmed');
+        const s2v = (box.querySelector('#regS2')?.value || '');
+        const textVal = (box.querySelector('#iText')?.value || '').trim();
+        const savePayload = { id: s.id, date: (s.date || date), title: titleVal, interviewText: textVal, status1: s1v, status2: s2v || undefined };
+        try { await api('/api/schedule', { method: 'PUT', body: JSON.stringify(savePayload) }); }
+        catch (err) { console.warn('Slot save before registration failed, continue:', err?.message || err); }
+
+        // 2) Register model from slot
+        const modelPayload = {
+          action: 'registerFromSlot',
+          date: (s.date || date),
+          slotId: s.id,
+          name: (titleVal || s.title || 'Кандидат'),
+          fullName: titleVal || undefined,
+          phone: phoneVal || undefined,
+          status1: s1v,
+          status2: s2v || undefined,
+        };
+        await api('/api/models', { method: 'POST', body: JSON.stringify(modelPayload) });
+
+        // 3) Refresh slots and close modal
+        const rel = await api('/api/schedule?date=' + encodeURIComponent(s.date || date));
+        slots = rel.items || [];
+        renderList();
+        const modal = document.querySelector('.modal-backdrop'); if (modal) modal.remove();
+        alert('Модель зарегистрирована');
+      } catch (e) {
+        alert(e.message || 'Не удалось выполнить регистрацию');
+      }
+    };
 
     // Delete slot inside modal (root/admin)
     const delBtn = box.querySelector('#deleteSlotBtn');
@@ -902,63 +895,6 @@ async function renderCalendar() {
         console.warn(e);
       }
     }
-
-    // Toggle Start Registration button visibility based on statuses
-    function updateStartVisibility() {
-      const v1 = (box.querySelector('#regS1')?.value || '');
-      const v2 = (box.querySelector('#regS2')?.value || '');
-      const canStart = (v1 === 'confirmed' && v2 === 'arrived');
-      const btn = box.querySelector('#registerBtn');
-      if (btn) btn.style.display = canStart ? 'inline-flex' : 'none';
-    }
-    ['#regS1','#regS2','#regS4'].forEach(sel => {
-      const elx = box.querySelector(sel);
-      if (elx) elx.onchange = updateStartVisibility;
-    });
-    updateStartVisibility();
-
-    const regBtn = box.querySelector('#registerBtn');
-    if (regBtn) regBtn.onclick = async () => {
-      try {
-        // Save latest slot state first (title/phone/statuses/interview/data_block)
-        const titleVal = (box.querySelector('#regName')?.value || '').trim();
-        const phoneVal = (box.querySelector('#regPhone')?.value || '').trim();
-        const s1v = (box.querySelector('#regS1')?.value || 'not_confirmed');
-        const s2v = (box.querySelector('#regS2')?.value || '');
-        const textVal = (box.querySelector('#iText')?.value || '').trim();
-        const savePayload = {
-          id: s.id,
-          date: (s.date || date),
-          title: titleVal,
-          interviewText: textVal,
-          status1: s1v,
-          status2: s2v || undefined,
-          dataBlock: {
-            model_data: [
-              { field: 'fullName', value: titleVal },
-              { field: 'phone', value: phoneVal }
-            ]
-          }
-        };
-        await api('/api/schedule', { method: 'PUT', body: JSON.stringify(savePayload) });
-
-        // Register model from slot (backend will set status4=registration and merge data_block)
-        const modelPayload = {
-          action: 'registerFromSlot',
-          date: (s.date || date),
-          slotId: s.id,
-          name: titleVal || s.title || 'Кандидат',
-          fullName: titleVal || undefined,
-          phone: phoneVal || undefined,
-          status1: s1v,
-          status2: s2v || undefined
-        };
-        const model = await api('/api/models', { method: 'POST', body: JSON.stringify(modelPayload) });
-        const backdrop = box.closest('.modal-backdrop'); if (backdrop) backdrop.remove();
-        await renderModels();
-        if (model && model.id && typeof window.renderModelCard === 'function') window.renderModelCard(model.id);
-      } catch (e) { alert(e.message || 'Не удалось выполнить регистрацию'); }
-    };
 
     // initial
     refreshFiles();
